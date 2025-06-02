@@ -26,9 +26,9 @@ public class AppCfg {
 	//
 
 	private static final int	APP_VERS_MAJ = 3;
-	private static final int	APP_VERS_MIN = 0;
+	private static final int	APP_VERS_MIN = 1;
 	private static final String	APP_VERS_REL = "GA";
-	private static final String	APP_DATE_REL = "May 30, 2025";
+	private static final String	APP_DATE_REL = "Jun 2, 2025";
 
 	private static final String	APP_NAME_TAG = AppList.AUTH.getName();
 	private static final String	APP_NAME_TXT = "Waze.Tools " + APP_NAME_TAG;
