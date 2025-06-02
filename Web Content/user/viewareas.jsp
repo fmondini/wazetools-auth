@@ -133,7 +133,7 @@
 				},
 
 				error: function(jqXHR, textStatus, errorThrown) {
-					console.error('DrawUserAreaPaths() Error: jqXHR: %o', jqXHR);
+					console.error('[/user/viewareas.jsp] DrawUserAreaPaths() Error: jqXHR: %o', jqXHR);
 				}
 			});
 		}
