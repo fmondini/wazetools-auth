@@ -2,6 +2,8 @@
 	language="java"
 	contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"
+	import="org.json.*"
+	import="java.util.*"
 	import="net.danisoft.dslib.*"
 	import="net.danisoft.wtlib.auth.*"
 	import="net.danisoft.wazetools.*"
@@ -13,6 +15,52 @@
 	private static final String PAGE_Description = "Register as a new user. Your new account will be ready once approved by our administrators.";
 
 	private static final String MANDATORY_FLAG = "<span class=\"DS-text-exception\">&nbsp;(<b>*</b>)</span>";
+
+	/**
+	 * Get a list of <option> of ALL countries that have at least one administrator
+	 */
+	private static String getAllActiveCountriesOptions(User USR, GeoIso GEO) throws Exception {
+
+		JSONArray jaActvCtry;
+		Vector<User.Data> vecUsrData = USR.getAll();
+		Vector<String> vecAllCountriesRaw = new Vector<String>();
+
+		for (User.Data usrData : vecUsrData) {
+
+			jaActvCtry = usrData.getWazerConfig().getAuth().getActiveCountries();
+
+			if (!jaActvCtry.isEmpty()) {
+				for (int i=0; i<jaActvCtry.length(); i++)
+					vecAllCountriesRaw.add(jaActvCtry.getString(i));
+			}
+		}
+
+		// Delete dupes and sort vector
+
+		Vector<String> vecAllCountriesSorted = new Vector<String>();
+
+		Set<String> hashSet = new HashSet<>();
+		hashSet.addAll(vecAllCountriesRaw);
+
+		for (String ctryCode : hashSet)
+			vecAllCountriesSorted.add(ctryCode);
+
+		Collections.sort(vecAllCountriesSorted);
+
+		// Create combo options
+
+		String countryComboOpt = "<option selected value=\"\">&laquo; Please select a Country &raquo;</option>";
+
+		for (String ctry : vecAllCountriesSorted) {
+			countryComboOpt +=
+				"<option value=\"" + ctry + "\">" +
+					"[" + ctry + "] " + GEO.getFullDesc(ctry) +
+				"</option>"
+			;
+		}
+
+		return(countryComboOpt);
+	}
 %>
 <!DOCTYPE html>
 <html>
@@ -36,8 +84,9 @@
 	String RedirectTo = "";
 
 	Database DB = new Database();
+	User USR = new User(DB.getConnection());
+	GeoIso GEO = new GeoIso(DB.getConnection());
 	MsgTool MSG = new MsgTool(session);
-	TomcatRole TCR = new TomcatRole(DB.getConnection());
 	LogTool LOG = new LogTool(DB.getConnection());
 
 	String Action = EnvTool.getStr(request, "Action", "");
@@ -80,7 +129,7 @@
 						</td>
 						<td class="DS-padding-4px">
 							<select id="reqCountry" name="reqCountry" class="DS-input-textbox" style="width: 100%">
-								<%= TCR.getActiveCountriesCombo(reqCountry) %>
+								<%= getAllActiveCountriesOptions(USR, GEO) %>
 							</select>
 						</td>
 						<td class="DS-padding-4px DS-text-italic DS-text-gray DS-border-rg">Only countries with an active administrator are displayed</td>
@@ -207,8 +256,6 @@
 <%
 		try {
 
-			User USR = new User(DB.getConnection());
-
 			// Check fields
 
 			String AllErrors = "";
@@ -250,7 +297,6 @@
 
 			// Alert SysOp
 
-			GeoIso GEO = new GeoIso(DB.getConnection());
 			Mail MAIL = new Mail(request);
 
 			MAIL.setRecipient("fmondini@danisoft.net"); // TODO: New User Registration: Send an email to every country admin
