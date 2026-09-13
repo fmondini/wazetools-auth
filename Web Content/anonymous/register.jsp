@@ -258,7 +258,7 @@
 
 			// Check fields
 
-			String AllErrors = "";
+			String AllErrors = "Unauthorized Access";
 
 			if (reqCountry.equals(""))	AllErrors += "<li>Country is needed</li>";
 			if (reqUsr.equals(""))		AllErrors += "<li>Username is needed</li>";
